@@ -20,7 +20,7 @@ The binary is installed as `lightpanda` in the Homebrew bin directory. The two f
 
 | Formula | Install command | Version |
 |---|---|---|
-| `lightpanda` | `brew install lightpanda-io/lightpanda` | Latest stable release |
+| `lightpanda` | `brew install lightpanda-io/lightpanda/lightpanda` | Latest stable release |
 | `lightpanda-nightly` | `brew install lightpanda-io/lightpanda/lightpanda-nightly` | Nightly build (versioned by publish date) |
 
 ## Updating the formulas

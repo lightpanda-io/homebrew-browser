@@ -6,7 +6,7 @@ Homebrew tap for [Lightpanda](https://github.com/lightpanda-io/browser), a headl
 
 **Stable:**
 ```sh
-brew install lightpanda-io/lightpanda
+brew install lightpanda-io/lightpanda/lightpanda
 ```
 
 **Nightly:**
