@@ -55,11 +55,11 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "lightpanda-nightly ${{ steps.versions.outputs.latest }}"
+          commit-message: "lightpanda Formula ${{ steps.versions.outputs.latest }}"
           branch: update/${{ steps.versions.outputs.latest }}
-          title: "Update lightpanda-nightly to ${{ steps.versions.outputs.latest }}"
+          title: "Update lightpanda Formula to ${{ steps.versions.outputs.latest }}"
           body: |
-            Updates `lightpanda-nightly` from `${{ steps.versions.outputs.current }}` to `${{ steps.versions.outputs.latest }}`.
+            Updates `lightpanda` Formula from `${{ steps.versions.outputs.current }}` to `${{ steps.versions.outputs.latest }}`.
 
             [Nightly release](https://github.com/lightpanda-io/browser/releases/tag/nightly)
 
