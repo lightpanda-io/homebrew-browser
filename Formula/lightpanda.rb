@@ -6,7 +6,7 @@ class Lightpanda < Formula
   livecheck do
     url "https://api.github.com/repos/lightpanda-io/browser/releases/tags/nightly"
     strategy :json do |json|
-      json["published_at"]&.slice(0, 10)&.then { |d| "nightly-#{d}" }
+      json["updated_at"]&.slice(0, 10)&.then { |d| "nightly-#{d}" }
     end
   end
 
