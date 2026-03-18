@@ -2,7 +2,7 @@ name: Update Nightly Formula
 
 on:
   schedule:
-    - cron: "20 2 * * *" # every day at 2:20 AM UTC
+    - cron: "20 * * * *" # every hour, past 20 min. TODO we should have this triggered by the nightly build of the browser repo.
   workflow_dispatch:
 
 jobs:
