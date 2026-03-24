@@ -33,19 +33,17 @@ jobs:
           LATEST: ${{ steps.versions.outputs.latest }}
           CURRENT: ${{ steps.versions.outputs.current }}
         run: |
-          BASE="https://github.com/lightpanda-io/browser/releases/download/nightly"
+          RELEASE_JSON=$(curl -sf "https://api.github.com/repos/lightpanda-io/browser/releases/tags/nightly")
 
-          echo "Fetching aarch64-macos binary..."
-          AARCH64_MACOS_SHA=$(curl -sL "${BASE}/lightpanda-aarch64-macos" | sha256sum | awk '{print $1}')
+          digest_for() {
+            local asset_name="$1"
+            printf '%s' "$RELEASE_JSON" | jq -r --arg name "$asset_name" '.assets[] | select(.name == $name) | .digest' | sed 's/^sha256://'
+          }
 
-          echo "Fetching x86_64-macos binary..."
-          X86_MACOS_SHA=$(curl -sL "${BASE}/lightpanda-x86_64-macos" | sha256sum | awk '{print $1}')
-
-          echo "Fetching aarch64-linux binary..."
-          AARCH64_LINUX_SHA=$(curl -sL "${BASE}/lightpanda-aarch64-linux" | sha256sum | awk '{print $1}')
-
-          echo "Fetching x86_64-linux binary..."
-          X86_LINUX_SHA=$(curl -sL "${BASE}/lightpanda-x86_64-linux" | sha256sum | awk '{print $1}')
+          AARCH64_MACOS_SHA=$(digest_for "lightpanda-aarch64-macos")
+          X86_MACOS_SHA=$(digest_for "lightpanda-x86_64-macos")
+          AARCH64_LINUX_SHA=$(digest_for "lightpanda-aarch64-linux")
+          X86_LINUX_SHA=$(digest_for "lightpanda-x86_64-linux")
 
           OLD_AARCH64_MACOS_SHA=$(grep -A1 'aarch64-macos"' Formula/lightpanda-nightly.rb | grep sha256 | sed 's/.*sha256 "\([^"]*\)".*/\1/')
           OLD_X86_MACOS_SHA=$(grep -A1 'x86_64-macos"' Formula/lightpanda-nightly.rb | grep sha256 | sed 's/.*sha256 "\([^"]*\)".*/\1/')
