@@ -20,6 +20,16 @@ class Lightpanda < Formula
     end
   end
 
+  on_linux do
+    if Hardware::CPU.arm?
+      url "https://github.com/lightpanda-io/browser/releases/download/nightly/lightpanda-aarch64-linux"
+      sha256 "0937fc3098e86597a347f5a4acf06e8910d59d61708737d832ce79e99628153b"
+    else
+      url "https://github.com/lightpanda-io/browser/releases/download/nightly/lightpanda-x86_64-linux"
+      sha256 "99fba98786d5d2e5d8c261e6f7332a18b39d3dc91fcc4f05273637d0b8d710c5"
+    end
+  end
+
   def install
     bin.install Dir["lightpanda-*"].first => "lightpanda"
   end
