@@ -23,10 +23,10 @@ class Lightpanda < Formula
   on_linux do
     if Hardware::CPU.arm?
       url "https://github.com/lightpanda-io/browser/releases/download/nightly/lightpanda-aarch64-linux"
-      sha256 "7bd2983c541e6b3076a6460b5e3d0a67d5275c409638c763513cdeb080e2d984"
+      sha256 "5f1183f9e748dbe75e836e3dcf2750293229009ecd1959ab59d579fa3824907b"
     else
       url "https://github.com/lightpanda-io/browser/releases/download/nightly/lightpanda-x86_64-linux"
-      sha256 "4bd781735fbff7b465437d29d25637d698276925e65963f1fec1027cad5ae98c"
+      sha256 "2465ef83d359ed5a986da2375e43aafff0f1edc6f7b8fbe326760602793a987e"
     end
   end
 
