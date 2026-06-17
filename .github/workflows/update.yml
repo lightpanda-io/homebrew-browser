@@ -25,6 +25,14 @@ jobs:
           LINUX_AARCH64_SHA=$(echo "$RELEASE" | jq -r '.assets[] | select(.name == "lightpanda-aarch64-linux") | .digest | sub("^sha256:"; "")')
           LINUX_X86_SHA=$(echo "$RELEASE" | jq -r '.assets[] | select(.name == "lightpanda-x86_64-linux") | .digest | sub("^sha256:"; "")')
 
+          for name in MACOS_AARCH64 MACOS_X86 LINUX_AARCH64 LINUX_X86; do
+            var="${name}_SHA"
+            if [ -z "${!var}" ] || [ "${!var}" = "null" ]; then
+              echo "::error::Release asset digest for $name is empty — aborting to avoid corrupting the formula."
+              exit 1
+            fi
+          done
+
           OLD_MACOS_AARCH64_SHA=$(grep -A1 'aarch64-macos"' Formula/lightpanda.rb | grep sha256 | sed 's/.*sha256 "\([^"]*\)".*/\1/')
           OLD_MACOS_X86_SHA=$(grep -A1 'x86_64-macos"' Formula/lightpanda.rb | grep sha256 | sed 's/.*sha256 "\([^"]*\)".*/\1/')
           OLD_LINUX_AARCH64_SHA=$(grep -A1 'aarch64-linux"' Formula/lightpanda.rb | grep sha256 | sed 's/.*sha256 "\([^"]*\)".*/\1/')
@@ -75,10 +83,18 @@ jobs:
           OLD_LINUX_X86_SHA: ${{ steps.versions.outputs.old_linux_x86_sha }}
         run: |
           sed -i "s|version \"${CURRENT}\"|version \"${LATEST}\"|" Formula/lightpanda.rb
-          sed -i "s|${OLD_MACOS_AARCH64_SHA}|${MACOS_AARCH64_SHA}|" Formula/lightpanda.rb
-          sed -i "s|${OLD_MACOS_X86_SHA}|${MACOS_X86_SHA}|" Formula/lightpanda.rb
-          sed -i "s|${OLD_LINUX_AARCH64_SHA}|${LINUX_AARCH64_SHA}|" Formula/lightpanda.rb
-          sed -i "s|${OLD_LINUX_X86_SHA}|${LINUX_X86_SHA}|" Formula/lightpanda.rb
+
+          # Only substitute when the old SHA is non-empty and differs from the new one.
+          # An empty old value would expand to `s||new|` ("no previous regular expression").
+          replace_sha() {
+            old="$1"; new="$2"
+            [ -n "$old" ] && [ "$old" != "$new" ] && sed -i "s|${old}|${new}|" Formula/lightpanda.rb
+            return 0
+          }
+          replace_sha "${OLD_MACOS_AARCH64_SHA}" "${MACOS_AARCH64_SHA}"
+          replace_sha "${OLD_MACOS_X86_SHA}" "${MACOS_X86_SHA}"
+          replace_sha "${OLD_LINUX_AARCH64_SHA}" "${LINUX_AARCH64_SHA}"
+          replace_sha "${OLD_LINUX_X86_SHA}" "${LINUX_X86_SHA}"
 
       - name: Open pull request
         if: steps.versions.outputs.changed == 'true'
