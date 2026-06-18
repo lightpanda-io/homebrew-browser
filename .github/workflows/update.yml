@@ -110,8 +110,8 @@ jobs:
 
             [Nightly release](https://github.com/lightpanda-io/browser/releases/tag/nightly)
 
-      - name: Auto-merge pull request
+      - name: Merge pull request
         if: steps.cpr.outputs.pull-request-number != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh pr merge --auto --merge ${{ steps.cpr.outputs.pull-request-number }}
+        run: gh pr merge --merge ${{ steps.cpr.outputs.pull-request-number }}
