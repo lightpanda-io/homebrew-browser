@@ -22,7 +22,8 @@ brew install lightpanda
 
 ## Updating formula
 
-A github action runs automatically every day at 2:10 AM UTC, or can be triggered manually:
+A github action is triggered by the [browser](https://github.com/lightpanda-io/browser)
+repository once a nightly release is built, and can also be triggered manually:
 [Update Formula](../../actions/workflows/update.yml)
 
 It will open a pull request and merge it automatically if all checks pass.
