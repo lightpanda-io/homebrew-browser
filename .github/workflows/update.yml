@@ -1,13 +1,21 @@
-name: Update Nightly Formula
+name: Update Formula
 
+# Triggered by lightpanda-io/browser's release workflow once a release is built,
+# passing the built tag. Only "nightly" is handled for now; any other tag is a
+# no-op (the job below is skipped) so the caller can dispatch uniformly.
 on:
-  schedule:
-    - cron: "20 * * * *" # every hour, past 20 min. TODO we should have this triggered by the nightly build of the browser repo.
   workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to update the formula for (currently only "nightly" is handled).
+        required: false
+        default: nightly
+        type: string
 
 jobs:
   nightly:
     name: Update nightly formula
+    if: inputs.tag == 'nightly'
     runs-on: ubuntu-latest
     permissions:
       contents: write

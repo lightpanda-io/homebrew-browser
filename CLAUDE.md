@@ -6,7 +6,7 @@ Homebrew tap for the [Lightpanda browser](https://github.com/lightpanda-io/brows
 
 - `Formula/lightpanda.rb` — Homebrew formula (nightly build)
 - `update.sh` — local script to update formula to its latest version
-- `.github/workflows/update.yml` — GitHub Actions workflow to update the formula (automatic daily + manual trigger)
+- `.github/workflows/update.yml` — GitHub Actions workflow to update the formula (triggered by the browser repo's release + manual trigger)
 
 ## Formulas
 
@@ -27,7 +27,7 @@ Run `./update.sh` to update formula. It will:
 
 **Github Actions**
 
-Or trigger the GitHub Actions workflow manually from the GitHub Actions UI. The workflow also runs automatically every day at 2:10 AM UTC.
+The GitHub Actions workflow is invoked by `lightpanda-io/browser`'s release workflow once a release is built, via `workflow_dispatch` with a `tag` input (only `nightly` is handled for now). It can also be triggered manually from the GitHub Actions UI.
 
 The workflow will open a pull request and merge it automatically if all checks pass. This requires **"Allow auto-merge"** to be enabled in the repo settings (Settings → General → Allow auto-merge).
 
