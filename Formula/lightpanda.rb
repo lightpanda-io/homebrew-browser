@@ -1,7 +1,7 @@
 class Lightpanda < Formula
   desc "Headless browser for AI agents and automation (nightly build)"
   homepage "https://github.com/lightpanda-io/browser"
-  version "2026.06.25.033357"
+  version "2026.06.26.033644"
 
   livecheck do
     url "https://api.github.com/repos/lightpanda-io/browser/releases/tags/nightly"
@@ -13,20 +13,20 @@ class Lightpanda < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/lightpanda-io/browser/releases/download/nightly/lightpanda-aarch64-macos"
-      sha256 "575f207b852318de211caeef6b0c437cf86e29841259127fe5371c3f8a0c4050"
+      sha256 "4e507ce90de22f6fcb893aa027b5a412ae088e918b5894b61a422c31ebbe8da7"
     else
       url "https://github.com/lightpanda-io/browser/releases/download/nightly/lightpanda-x86_64-macos"
-      sha256 "ad190cd9d7a9e1a8cdac6d1b7889c6435d2c494fa19ce6134e8f90ec64627031"
+      sha256 "694e75da75d896d409f933f45565412d8fb60d587a42ed790f54a81c49c94e0d"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
       url "https://github.com/lightpanda-io/browser/releases/download/nightly/lightpanda-aarch64-linux"
-      sha256 "728bd1aec56b048819a39e2d7aeb375285a2842e982c0672a50059b5e79ae894"
+      sha256 "2920e6e6e099828bdddb971736ba9a6dbc428083230a0c375a1d0db475d06385"
     else
       url "https://github.com/lightpanda-io/browser/releases/download/nightly/lightpanda-x86_64-linux"
-      sha256 "a37828f00482a17ad97121cc31df609588a29a4f078a87f461814085b4fd6759"
+      sha256 "aa9c20bfca9c0efcc2c5e0ca767394e50c1b348a848bbb9d8bfb6a88228a3592"
     end
   end
 
