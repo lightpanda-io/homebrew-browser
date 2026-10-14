@@ -1,34 +1,37 @@
 class Lightpanda < Formula
-  desc "Headless browser for AI agents and automation (nightly build)"
+  desc "Headless browser for AI agents and automation"
   homepage "https://github.com/lightpanda-io/browser"
-  version "2026.10.15.025336"
+  version "1.0.0"
+  # Older versions of this formula used nightly dates (e.g. 2026.10.14) as version.
+  # The scheme bump makes tagged versions newer than those dates.
+  version_scheme 1
 
   livecheck do
-    url "https://api.github.com/repos/lightpanda-io/browser/releases/tags/nightly"
-    strategy :json do |json|
-      json["updated_at"]&.slice(0, 10)
-    end
+    url :stable
+    strategy :github_latest
   end
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/lightpanda-io/browser/releases/download/nightly/lightpanda-aarch64-macos"
-      sha256 "4575629f2a81f8b73761832717913d7290cefb8540f42d592b4b48efcc8c1f89"
+      url "https://github.com/lightpanda-io/browser/releases/download/#{version}/lightpanda-aarch64-macos"
+      sha256 "955440053a84754dd64c62f970449a56a2b350cdf43ea5f2e809a73047b8173d"
     else
-      url "https://github.com/lightpanda-io/browser/releases/download/nightly/lightpanda-x86_64-macos"
-      sha256 "e46792d5b4a2c5f080b0e10bb4f8214f354e9a5a22244eabf72b815aa6f10175"
+      url "https://github.com/lightpanda-io/browser/releases/download/#{version}/lightpanda-x86_64-macos"
+      sha256 "e510299683b37a203912eac0ee00732224b2ef9b07fe58e69c467f5255be45e2"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/lightpanda-io/browser/releases/download/nightly/lightpanda-aarch64-linux"
-      sha256 "678f85480e5308525383a018f0de639317849315bc91d2eb02287dad7748ee5e"
+      url "https://github.com/lightpanda-io/browser/releases/download/#{version}/lightpanda-aarch64-linux"
+      sha256 "69791924bcee43b13b224af4c845622c5fe66fdbc1b8143bfaa39ca8f85244f5"
     else
-      url "https://github.com/lightpanda-io/browser/releases/download/nightly/lightpanda-x86_64-linux"
-      sha256 "30cdea8677b91fb0372774633a0438fa80e05d7e6bdac49917277899d3f1dcc3"
+      url "https://github.com/lightpanda-io/browser/releases/download/#{version}/lightpanda-x86_64-linux"
+      sha256 "aa5a4b8ed53d1e38b3c73f5b2647d0a84a82e6744557f45f9a9c85858aa031c3"
     end
   end
+
+  conflicts_with "lightpanda-nightly", because: "both install a `lightpanda` binary"
 
   def install
     bin.install Dir["lightpanda-*"].first => "lightpanda"

@@ -1,21 +1,21 @@
 name: Update Formula
 
 # Triggered by lightpanda-io/browser's release workflow once a release is built,
-# passing the built tag. Only "nightly" is handled for now; any other tag is a
-# no-op (the job below is skipped) so the caller can dispatch uniformly.
+# passing the built tag:
+# - "nightly" updates the lightpanda-nightly formula.
+# - any other tag updates the lightpanda formula, if it is the latest release.
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Release tag to update the formula for (currently only "nightly" is handled).
-        required: false
+        description: Release tag to update the formula for ("nightly", "latest" or a version tag).
+        required: true
         default: nightly
         type: string
 
 jobs:
-  nightly:
-    name: Update nightly formula
-    if: inputs.tag == 'nightly'
+  update:
+    name: Update formula for ${{ inputs.tag }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -23,86 +23,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Compare release SHAs to formula
+      - name: Update formula
         id: versions
-        run: |
-          RELEASE=$(curl -sf "https://api.github.com/repos/lightpanda-io/browser/releases/tags/nightly")
-
-          MACOS_AARCH64_SHA=$(echo "$RELEASE" | jq -r '.assets[] | select(.name == "lightpanda-aarch64-macos") | .digest | sub("^sha256:"; "")')
-          MACOS_X86_SHA=$(echo "$RELEASE" | jq -r '.assets[] | select(.name == "lightpanda-x86_64-macos") | .digest | sub("^sha256:"; "")')
-          LINUX_AARCH64_SHA=$(echo "$RELEASE" | jq -r '.assets[] | select(.name == "lightpanda-aarch64-linux") | .digest | sub("^sha256:"; "")')
-          LINUX_X86_SHA=$(echo "$RELEASE" | jq -r '.assets[] | select(.name == "lightpanda-x86_64-linux") | .digest | sub("^sha256:"; "")')
-
-          for name in MACOS_AARCH64 MACOS_X86 LINUX_AARCH64 LINUX_X86; do
-            var="${name}_SHA"
-            if [ -z "${!var}" ] || [ "${!var}" = "null" ]; then
-              echo "::error::Release asset digest for $name is empty — aborting to avoid corrupting the formula."
-              exit 1
-            fi
-          done
-
-          OLD_MACOS_AARCH64_SHA=$(grep -A1 'aarch64-macos"' Formula/lightpanda.rb | grep sha256 | sed 's/.*sha256 "\([^"]*\)".*/\1/')
-          OLD_MACOS_X86_SHA=$(grep -A1 'x86_64-macos"' Formula/lightpanda.rb | grep sha256 | sed 's/.*sha256 "\([^"]*\)".*/\1/')
-          OLD_LINUX_AARCH64_SHA=$(grep -A1 'aarch64-linux"' Formula/lightpanda.rb | grep sha256 | sed 's/.*sha256 "\([^"]*\)".*/\1/')
-          OLD_LINUX_X86_SHA=$(grep -A1 'x86_64-linux"' Formula/lightpanda.rb | grep sha256 | sed 's/.*sha256 "\([^"]*\)".*/\1/')
-
-          CURRENT=$(grep '^  version ' Formula/lightpanda.rb | sed 's/.*"\(.*\)".*/\1/')
-          LATEST=$(echo "$RELEASE" | jq -r '.updated_at' | sed 's/-/./g; s/T/./; s/://g; s/Z$//')
-
-          echo "Current: $CURRENT — Latest: $LATEST"
-          echo "Current macOS aarch64: $OLD_MACOS_AARCH64_SHA — Latest: $MACOS_AARCH64_SHA"
-          echo "Current macOS x86_64:  $OLD_MACOS_X86_SHA — Latest: $MACOS_X86_SHA"
-          echo "Current Linux aarch64: $OLD_LINUX_AARCH64_SHA — Latest: $LINUX_AARCH64_SHA"
-          echo "Current Linux x86_64:  $OLD_LINUX_X86_SHA — Latest: $LINUX_X86_SHA"
-
-          if [ "$MACOS_AARCH64_SHA" = "$OLD_MACOS_AARCH64_SHA" ] &&
-            [ "$MACOS_X86_SHA" = "$OLD_MACOS_X86_SHA" ] &&
-            [ "$LINUX_AARCH64_SHA" = "$OLD_LINUX_AARCH64_SHA" ] &&
-            [ "$LINUX_X86_SHA" = "$OLD_LINUX_X86_SHA" ]; then
-            echo "Formula already up to date."
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          echo "changed=true" >> "$GITHUB_OUTPUT"
-          echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
-          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
-          echo "macos_aarch64_sha=$MACOS_AARCH64_SHA" >> "$GITHUB_OUTPUT"
-          echo "macos_x86_sha=$MACOS_X86_SHA" >> "$GITHUB_OUTPUT"
-          echo "linux_aarch64_sha=$LINUX_AARCH64_SHA" >> "$GITHUB_OUTPUT"
-          echo "linux_x86_sha=$LINUX_X86_SHA" >> "$GITHUB_OUTPUT"
-          echo "old_macos_aarch64_sha=$OLD_MACOS_AARCH64_SHA" >> "$GITHUB_OUTPUT"
-          echo "old_macos_x86_sha=$OLD_MACOS_X86_SHA" >> "$GITHUB_OUTPUT"
-          echo "old_linux_aarch64_sha=$OLD_LINUX_AARCH64_SHA" >> "$GITHUB_OUTPUT"
-          echo "old_linux_x86_sha=$OLD_LINUX_X86_SHA" >> "$GITHUB_OUTPUT"
-
-      - name: Update nightly formula
-        if: steps.versions.outputs.changed == 'true'
         env:
-          LATEST: ${{ steps.versions.outputs.latest }}
-          CURRENT: ${{ steps.versions.outputs.current }}
-          MACOS_AARCH64_SHA: ${{ steps.versions.outputs.macos_aarch64_sha }}
-          MACOS_X86_SHA: ${{ steps.versions.outputs.macos_x86_sha }}
-          LINUX_AARCH64_SHA: ${{ steps.versions.outputs.linux_aarch64_sha }}
-          LINUX_X86_SHA: ${{ steps.versions.outputs.linux_x86_sha }}
-          OLD_MACOS_AARCH64_SHA: ${{ steps.versions.outputs.old_macos_aarch64_sha }}
-          OLD_MACOS_X86_SHA: ${{ steps.versions.outputs.old_macos_x86_sha }}
-          OLD_LINUX_AARCH64_SHA: ${{ steps.versions.outputs.old_linux_aarch64_sha }}
-          OLD_LINUX_X86_SHA: ${{ steps.versions.outputs.old_linux_x86_sha }}
-        run: |
-          sed -i "s|version \"${CURRENT}\"|version \"${LATEST}\"|" Formula/lightpanda.rb
-
-          # Only substitute when the old SHA is non-empty and differs from the new one.
-          # An empty old value would expand to `s||new|` ("no previous regular expression").
-          replace_sha() {
-            old="$1"; new="$2"
-            [ -n "$old" ] && [ "$old" != "$new" ] && sed -i "s|${old}|${new}|" Formula/lightpanda.rb
-            return 0
-          }
-          replace_sha "${OLD_MACOS_AARCH64_SHA}" "${MACOS_AARCH64_SHA}"
-          replace_sha "${OLD_MACOS_X86_SHA}" "${MACOS_X86_SHA}"
-          replace_sha "${OLD_LINUX_AARCH64_SHA}" "${LINUX_AARCH64_SHA}"
-          replace_sha "${OLD_LINUX_X86_SHA}" "${LINUX_X86_SHA}"
+          TAG: ${{ inputs.tag }}
+        run: ./update.sh "$TAG"
 
       - name: Open pull request
         if: steps.versions.outputs.changed == 'true'
@@ -110,13 +35,13 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "lightpanda Formula ${{ steps.versions.outputs.latest }}"
-          branch: update/${{ steps.versions.outputs.latest }}
-          title: "Update lightpanda Formula to ${{ steps.versions.outputs.latest }}"
+          commit-message: "${{ steps.versions.outputs.formula }} Formula ${{ steps.versions.outputs.latest }}"
+          branch: update/${{ steps.versions.outputs.formula }}/${{ steps.versions.outputs.latest }}
+          title: "Update ${{ steps.versions.outputs.formula }} Formula to ${{ steps.versions.outputs.latest }}"
           body: |
-            Updates `lightpanda` Formula from `${{ steps.versions.outputs.current }}` to `${{ steps.versions.outputs.latest }}`.
+            Updates `${{ steps.versions.outputs.formula }}` Formula from `${{ steps.versions.outputs.current }}` to `${{ steps.versions.outputs.latest }}`.
 
-            [Nightly release](https://github.com/lightpanda-io/browser/releases/tag/nightly)
+            [Release](https://github.com/lightpanda-io/browser/releases/tag/${{ steps.versions.outputs.formula == 'lightpanda-nightly' && 'nightly' || steps.versions.outputs.latest }})
 
       - name: Merge pull request
         if: steps.cpr.outputs.pull-request-number != ''
