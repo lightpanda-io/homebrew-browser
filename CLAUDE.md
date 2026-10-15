@@ -4,32 +4,39 @@ Homebrew tap for the [Lightpanda browser](https://github.com/lightpanda-io/brows
 
 ## Structure
 
-- `Formula/lightpanda.rb` — Homebrew formula (nightly build)
-- `update.sh` — local script to update formula to its latest version
+- `Formula/lightpanda.rb` — Homebrew formula (latest tagged release)
+- `Formula/lightpanda-nightly.rb` — Homebrew formula (nightly build)
+- `update.sh` — script to update the formulas to their latest version (used locally and by the workflow)
 - `.github/workflows/update.yml` — GitHub Actions workflow to update the formula (triggered by the browser repo's release + manual trigger)
 
 ## Formulas
 
-Formula install pre-built binaries from the Lightpanda GitHub releases (nightly build):
-- `lightpanda-aarch64-macos` for Apple Silicon
-- `lightpanda-x86_64-macos` for Intel
+Formulas install pre-built binaries from the Lightpanda GitHub releases:
+- `lightpanda` uses the latest tagged release (e.g. `1.0.0`).
+- `lightpanda-nightly` uses the `nightly` release. Its version is the release date.
 
-The binary is installed as `lightpanda` in the Homebrew bin directory. 
+Assets: `lightpanda-{aarch64,x86_64}-{macos,linux}`.
+
+Both install the binary as `lightpanda` in the Homebrew bin directory, so they declare `conflicts_with` each other.
+
+`lightpanda` has `version_scheme 1`: it used nightly dates as version before, and the bump makes tagged versions newer than those dates.
 
 ## Updating the formula
 
 **Locally**
 
-Run `./update.sh` to update formula. It will:
-1. Fetch the latest nightly release date from the GitHub API
-2. Skip formula if already up to date
-4. Download both binaries, compute SHA256 checksums, and patch the formula
+Run `./update.sh` to update both formulas, or pass an argument:
+- `./update.sh nightly` — update `lightpanda-nightly`
+- `./update.sh latest` — update `lightpanda` to the latest tagged release
+- `./update.sh <tag>` — update `lightpanda` to `<tag>`, only if it is the latest release
+
+It reads the version and the SHA256 digests of the assets from the GitHub API, and patches the formula.
 
 **Github Actions**
 
-The GitHub Actions workflow is invoked by `lightpanda-io/browser`'s release workflow once a release is built, via `workflow_dispatch` with a `tag` input (only `nightly` is handled for now). It can also be triggered manually from the GitHub Actions UI.
+The GitHub Actions workflow is invoked by `lightpanda-io/browser`'s release workflow once a release is built, via `workflow_dispatch` with a `tag` input. It runs `./update.sh <tag>`. It can also be triggered manually from the GitHub Actions UI.
 
-The workflow will open a pull request and merge it automatically if all checks pass. This requires **"Allow auto-merge"** to be enabled in the repo settings (Settings → General → Allow auto-merge).
+The workflow opens a pull request and merges it right away with `gh pr merge --merge`. It does not wait for checks: the repo has no CI checks and no branch protection on `main`.
 
 ## Auditing
 
