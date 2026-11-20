@@ -1,7 +1,7 @@
 class Lightpanda < Formula
   desc "Headless browser for AI agents and automation"
   homepage "https://github.com/lightpanda-io/browser"
-  version "1.0.4"
+  version "1.0.5"
   # Older versions of this formula used nightly dates (e.g. 2026.10.14) as version.
   # The scheme bump makes tagged versions newer than those dates.
   version_scheme 1
@@ -14,20 +14,20 @@ class Lightpanda < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/lightpanda-io/browser/releases/download/#{version}/lightpanda-aarch64-macos"
-      sha256 "83b0ba5ae31086b675fb3ba50644bda075a13bebabe46dc5f7543952bc41ae46"
+      sha256 "eec3781086ee512320a04b036f092806a8a959944ea78fc8f4fe7dfe215a84b4"
     else
       url "https://github.com/lightpanda-io/browser/releases/download/#{version}/lightpanda-x86_64-macos"
-      sha256 "8c02127c6fc2a713d166349bf1b511d470c8fcd684681927c978cc8bb5952d55"
+      sha256 "2b75c9fee5c36d5d840f7938df6a532074bec03bf0485c3130b28597999a66fe"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
       url "https://github.com/lightpanda-io/browser/releases/download/#{version}/lightpanda-aarch64-linux"
-      sha256 "f021d49a0b66d07bf2633f8e00870b9075293516f872695b0ca4aeb5848b6ea8"
+      sha256 "7527391c479f323eb9111b834b012d91a89057528c28ef027741b21739b12299"
     else
       url "https://github.com/lightpanda-io/browser/releases/download/#{version}/lightpanda-x86_64-linux"
-      sha256 "7d22651129901203abdb95c64f49069c49e88f5211f4d8c4c6828c123c4adab4"
+      sha256 "0ec21fa4867ab9e82b35285ff4ab0e7336c6c1d89f26fe991f27d73c8a678bd7"
     end
   end
 
